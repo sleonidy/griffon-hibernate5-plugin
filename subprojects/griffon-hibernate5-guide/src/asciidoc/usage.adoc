@@ -1,0 +1,305 @@
+
+[[_Usage]]
+= Usage
+
+The following sections describe how you may use this plugin in an project.
+
+== Configuration
+
+This plugin relies on the {link_griffon_datasource_plugin}. Please follow the instructions to configure this plugin first.
+
+You must create a configuration file named `Hibernate5` that holds the settings for creating instances of `{link_session_factory}`.
+This file follows the same standard configuration mechanism as the application's `Config` file, which means you can define the
+configuration using
+
+ * a properties file
+ * a Java file
+ * a Groovy script
+
+The following example shows the default settings needed to connect the default database taking into account that each
+environment may connect to a different database.
+
+[source,groovy,options="nowrap"]
+.src/main/resources/Hibernate5.groovy
+----
+include::{path_griffon_hibernate5_core}/src/test/resources/Hibernate5.groovy[lines=16..33]
+----
+
+You may configure multiple named SessionFactories (the default factory is aptly named `default`) as the following snippet
+shows
+
+[source,groovy,options="nowrap"]
+.src/main/resources/Hibernate5.groovy
+----
+include::{path_griffon_hibernate5_core}/src/test/resources/Hibernate5.groovy[lines=35..-1]
+----
+
+=== Session Properties
+
+The following table summarizes the properties that can be specified inside a `sessionFactory` block
+
+[cols="4*", options="header"]
+|====
+
+| Property | Type | Default | Description
+
+| schema
+| String
+| create-drop
+| Any value accepted by "hibernate.hbm2ddl.auto"
+
+| logSql
+| boolean
+| false
+| Defines value for "hibernate.show_sql"
+
+| formatSql
+| boolean
+| false
+| Defines value for "hibernate.format_sql"
+
+| dialect
+| String or Class
+|
+| Defines value for "hibernate.dialect"
+
+| entityInterceptor
+| String or Class
+|
+|
+
+| namingStrategy
+| String or Class
+|
+|
+
+| props
+| Properties or Map
+|
+|
+
+| mappings
+| List
+|
+| Additional resource mappings
+
+| connect_on_startup
+| boolean
+| false
+| Establishes a connection to the datasource at the beginning of the `Startup` phase.
+
+| jmx
+| boolean
+| true
+| Expose the connection pool using JMX.
+
+|====
+
+=== Accessing the Datasource
+
+The plugin's <<_modules, module>> registers a `{api_hibernate5_handler}` helper class that defines the base contract
+for accessing a datasource and issue SQL queries to it. This class has the following methods
+
+[source,java,options="nowrap"]
+.griffon.plugins.hibernate5.Hibernate5Handler.java
+----
+include::{path_griffon_hibernate5_core}/src/main/java//griffon/plugins/hibernate5/Hibernate5Handler.java[tags=methods,indent=0]
+----
+
+These method are aware of multiple datasources. If no sessionFactoryName is specified when calling them then the default
+datasource will be selected. You can inject an instance of this class anywhere it's needed using `@Inject`. There is one
+callback you may use with this method: `{api_hibernate5_callback}`.
+
+This callback is defined using a functional interface approach, which means you can apply lambda expressions if running
+with JDK8+ or closures if running Groovy.
+
+[source,java,options="nowrap"]
+.griffon.plugins.hibernate5.Hibernate5Callback.java
+----
+include::{path_griffon_hibernate5_core}/src/main/java/griffon/plugins/hibernate5/Hibernate5Callback.java[lines=25..-1]
+----
+
+=== Mappings
+
+Hibernate requires mapping resources for matching classes to tables. The plugin can automatically discover mappings
+that should be added to a `{link_session_factory}` as long as they are annotated with `@TypeProviderFor`. For example
+
+[source,groovy,options="nowrap"]
+.src/main/groovy/com/acme/Person.groovy
+----
+include::{path_griffon_hibernate5_core}/src/test/groovy/griffon/plugins/hibernate5/Person.groovy[lines=16..-1]
+----
+
+Don't forget mappings require a matching XML file that contains query definitions, such as
+
+[source,xml,options="nowrap"]
+[subs="verbatim,attributes"]
+.src/main/resources/griffon/plugins/hibernate5/Person.hbm.xml
+----
+include::{path_griffon_hibernate5_core}/src/test/resources/griffon/plugins/hibernate5/Person.hbm.xml[lines=18..-1]
+----
+
+=== Bootstrap
+
+You may execute arbitrary database calls during connection and disconnection from a `{link_session_factory}`. Simply
+create a class that implements the `{api_hibernate5_bootstrap}` interface and register it within a module, for example
+
+[source,java,options="nowrap"]
+.src/main/java/com/acme/SampleHibernate5Bootstrap.java
+----
+package com.acme;
+
+import griffon.plugins.hibernate5.Hibernate5Bootstrap;
+import org.hibernate.Session;
+
+import javax.annotation.Nonnull;
+import javax.inject.Named;
+
+@Named("sample")
+public class SampleHibernate5Bootstrap implements Hibernate5Bootstrap {
+    @Override
+    public void init(@Nonnull String sessionFactoryName, @Nonnull Session session) {
+        // operations after first connection to datasource
+    }
+
+    @Override
+    public void destroy(@Nonnull String sessionFactoryName, @Nonnull Session session) {
+        // operations before disconnecting from the datasource
+    }
+}
+----
+
+[source,java,options="nowrap"]
+.src/main/java/com/acme/ApplicationModule.java
+----
+package com.acme;
+
+import griffon.plugins.hibernate5.Hibernate5Bootstrap;
+import griffon.core.injection.Module;
+import org.codehaus.griffon.runtime.core.injection.AbstractModule;
+import org.kordamp.jipsy.ServiceProviderFor;
+
+@ServiceProviderFor(Module.class)
+public class ApplicationModule extends AbstractModule {
+    @Override
+    protected void doConfigure() {
+        bind(Hibernate5Bootstrap.class)
+            .to(SampleHibernate5Bootstrap.class)
+            .asSingleton();
+    }
+}
+----
+
+== Example
+
+The following is a trivial usage of the `{api_hibernate5_handler}` inside a Java service
+
+[source,java,options="nowrap"]
+.com.acme.SampleService.java
+----
+package com.acme;
+
+import griffon.core.artifact.GriffonService;
+import griffon.metadata.ArtifactProviderFor;
+import org.codehaus.griffon.runtime.core.artifact.AbstractGriffonService;
+
+import griffon.plugins.hibernate5.Hibernate5Handler;
+import griffon.plugins.hibernate5.Hibernate5Callback;
+import org.hibernate.Session;
+
+import javax.annotation.Nonnull;
+import javax.inject.Inject;
+
+@ArtifactProviderFor(GriffonService.class)
+public class SampleService extends AbstractGriffonService {
+    @Inject
+    private Hibernate5Handler hibernate5Handler;
+
+    public String getPersonName(final int id) {
+         return hibernate5Handler.withHbm4Session(new Hibernate5Callback<String>() {
+             public String handle(@Nonnull String sessionFactoryName, @Nonnull Session session) {
+                 Person person = (Person) session.createQuery("from Person where id = " + id).uniqueResult();
+                 return person != null ? person.getName() : null;
+         });
+    }
+}
+----
+
+Here's the Groovy version of it
+
+[source,groovy,options="nowrap"]
+.com.acme.SampleService.groovy
+----
+package com.acme
+
+import griffon.core.artifact.GriffonService
+import griffon.metadata.ArtifactProviderFor
+
+import griffon.plugins.hibernate5.Hibernate5Handler
+import org.hibernate.Session
+
+import javax.inject.Inject
+
+@ArtifactProviderFor(GriffonService)
+class SampleService {
+    @Inject
+    private Hibernate5Handler hibernate5Handler
+
+    String getPersonName(int id) {
+         hibernate5Handler.withHbm4Session { String sessionFactoryName, Session session ->
+             session.createQuery('from Person where id = ' + id).uniqueResult()?.name
+         }
+    }
+}
+----
+
+== Events
+
+The following events will be triggered by `{api_hibernate5_handler}`
+
+Hibernate5ConnectStart(String sessionFactoryName, Map<String, Object> config):: Triggered before connecting to the datasource.
+Hibernate5ConfigurationAvailable(Map<String, Object> options):: Triggered after the session's configuration is ready. The map
+contains the following keys:
+  * configuration; type=org.hibernate.cfg.Configuration
+  * dataSourceName; type=java.lang.String
+  * sessionConfiguration; type=java.util.Map
+Hibernate5ConnectEnd(String sessionFactoryName, Map<String, Object> config, SessionFactory factory):: Triggered after connecting to the datasource.
+Hibernate5DisconnectStart(String sessionFactoryName, Map<String, Object> config, SessionFactory factory):: Triggered before disconnecting from the datasource.
+Hibernate5DisconnectEnd(String sessionFactoryName, Map<String, Object> config):: Triggered after disconnecting from the datasource.
+
+NOTE: DataSource events may be triggered during connection and disconnection from a `{link_session_factory}`.
+
+== AST Transformation
+
+You can apply the `{api_hibernate5_aware}` AST transformation on any class. This injects the behavior of `{api_hibernate5_handler}`
+into said class. The previous Groovy service example can be rewritten as follows
+
+[source,groovy,options="nowrap"]
+.com.acme.SampleService.groovy
+----
+package com.acme
+
+import griffon.core.artifact.GriffonService
+import griffon.metadata.ArtifactProviderFor
+import griffon.transform.Hibernate5Aware
+
+import org.hibernate.Session
+
+@Hibernate5Aware
+@ArtifactProviderFor(GriffonService)
+class SampleService {
+    String getPersonName(int id) {
+         withHbm4Session { String sessionFactoryName, Session session ->
+             session.createQuery('from Person where id = ' + id).uniqueResult()?.name
+         }
+    }
+}
+----
+
+== DSL Descriptors
+
+This plugin provides DSL descriptors for Intellij IDEA and Eclipse (provided you have the Groovy Eclipse plugin installed).
+These descriptors are found inside the `griffon-hibernate5-groovy-compile-{project-version}.jar`, with locations
+
+ * dsdl/griffon_hibernate5.dsld
+ * gdsl/griffon_hibernate5.gdsl

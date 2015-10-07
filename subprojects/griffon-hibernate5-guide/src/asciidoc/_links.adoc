@@ -1,0 +1,13 @@
+
+:link_griffon_datasource_plugin: link:http://griffon-plugins.github.io/griffon-datasource-plugin[griffon-datasource-plugin, window="_blank"]
+:link_hibernate5: link:http://hibernate.org/orm/[Hibernate, window="_blank"]
+:link_session_factory: link:http://docs.jboss.org/hibernate/orm/4.3/javadocs/org/hibernate/SessionFactory.html[SessionFactory, window="_blank"]
+
+:api_hibernate5_handler: link:api/griffon/plugins/hibernate5/Hibernate5Handler.html[Hibernate5Handler, window="_blank"]
+:api_hibernate5_callback: link:api/griffon/plugins/hibernate5/Hibernate5Callback.html[Hibernate5Callback, window="_blank"]
+:api_hibernate5_aware: link:api/griffon/transform/Hibernate5Aware.html[@Hibernate5Aware, window="_blank"]
+:api_hibernate5_bootstrap: link:api/griffon/plugins/hibernate5/Hibernate5Bootstrap.html[Hibernate5Bootstrap, window="_blank"]
+
+:path_griffon_hibernate5_core: {rootdir}/subprojects/griffon-hibernate5-core
+:path_griffon_hibernate5_groovy_compile: {rootdir}/subprojects/griffon-hibernate5-groovy-compile
+
