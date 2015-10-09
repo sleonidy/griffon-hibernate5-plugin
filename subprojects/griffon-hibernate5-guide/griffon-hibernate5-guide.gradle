@@ -143,7 +143,7 @@ asciidoctor {
         'source-highlighter'   : 'coderay',
         'coderay-linenums-mode': 'table',
         'project-title'        : project.projectDescription,
-        'project-author'       : 'Andres Almiray',
+        'project-author'       : 'Andres Almiray,Leonid Yanovsky',
         'project-url'          : project.projectWebsiteUrl,
         'project-vcs'          : project.projectVcsUrl,
         'project-issue-tracker': project.projectIssueTrackerUrl,
