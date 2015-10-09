@@ -3,10 +3,9 @@
 :project-name: griffon-hibernate5-plugin
 
 image:https://travis-ci.org/sleonidy/griffon-hibernate5-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/sleonidy/griffon-hibernate5-plugin"]
-image:http://img.shields.io/coveralls/griffon-plugins/{project-name}/master.svg["Coverage Status", link="https://coveralls.io/r/griffon-plugins/{project-name}"]
+image:http://img.shields.io/coveralls/sleonidy/{project-name}/master.svg["Coverage Status", link="https://coveralls.io/r/sleonidy/{project-name}"]
 image:http://img.shields.io/badge/license-ASF2-blue.svg["Apache License 2", link="http://www.apache.org/licenses/LICENSE-2.0.txt"]
-image:https://api.bintray.com/packages/griffon/griffon-plugins/{project-name}/images/download.svg[link="https://bintray.com/griffon/griffon-plugins/{project-name}/_latestVersion"]
-
+image:https://api.bintray.com/packages/sleonidy/griffon-plugins/{project-name}/images/download.svg[link="https://bintray.com/sleonidy/griffon-plugins/{project-name}/_latestVersion"]
 ---
 
 The Hibernate5 plugin enables lightweight access multiple datasources using link:http://hibernate.org/orm/[Hibernate, window="_blank"]
