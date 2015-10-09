@@ -1,0 +1,7 @@
+griffon.plugins.hibernate5
+griffon.plugins.hibernate5.exceptions
+griffon.transform
+org.codehaus.griffon.runtime.hibernate5
+org.codehaus.griffon.runtime.hibernate5.internal
+org.codehaus.griffon.runtime.hibernate5.internal.exceptions
+org.codehaus.griffon.runtime.jmx
