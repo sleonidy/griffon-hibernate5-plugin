@@ -16,7 +16,7 @@
 <h1>Griffon hibernate5 Plugin</h1>
 <div class="details">
 <span id="author" class="author">Andres Almiray,Leonid Yanovsky</span><br>
-<span id="revnumber">version 1.0.0</span>
+<span id="revnumber">version 1.1.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -221,6 +221,12 @@ shows</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">boolean</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Expose the connection pool using JMX.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">mapClassesPattern</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String or Pattern</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/.*/</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maps only those classes which are matching mapClassesPattern value.</p></td>
 </tr>
 </tbody>
 </table>
@@ -527,7 +533,7 @@ into said class. The previous Groovy service example can be rewritten as follows
 <h3 id="_dsl_descriptors"><a class="anchor" href="#_dsl_descriptors"></a>2.5. DSL Descriptors</h3>
 <div class="paragraph">
 <p>This plugin provides DSL descriptors for Intellij IDEA and Eclipse (provided you have the Groovy Eclipse plugin installed).
-These descriptors are found inside the <code>griffon-hibernate5-groovy-compile-1.0.0.jar</code>, with locations</p>
+These descriptors are found inside the <code>griffon-hibernate5-groovy-compile-1.1.0.jar</code>, with locations</p>
 </div>
 <div class="ulist">
 <ul>
@@ -559,7 +565,7 @@ may include the following snippet in <code>build.gradle</code></p>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">dependencies {
-    griffon 'org.codehaus.griffon.plugins:griffon-hibernate5-plugin:1.0.0'
+    griffon 'org.codehaus.griffon.plugins:griffon-hibernate5-plugin:1.1.0'
 }</code></pre>
 </div>
 </div>
@@ -575,7 +581,7 @@ may include the following snippet in <code>build.gradle</code></p>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">dependencies {
-    compile 'org.codehaus.griffon.plugins:griffon-hibernate5-core:1.0.0'
+    compile 'org.codehaus.griffon.plugins:griffon-hibernate5-core:1.1.0'
 }</code></pre>
 </div>
 </div>
@@ -583,7 +589,7 @@ may include the following snippet in <code>build.gradle</code></p>
 <div class="title">Compile Only</div>
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">dependencies {
-    compileOnly 'org.codehaus.griffon.plugins:griffon-hibernate5-groovy-compile:1.0.0'
+    compileOnly 'org.codehaus.griffon.plugins:griffon-hibernate5-groovy-compile:1.1.0'
 }</code></pre>
 </div>
 </div>
@@ -602,7 +608,7 @@ snippet before the <code>&lt;build&gt;</code> element</p>
         <span class="tag">&lt;dependency&gt;</span>
             <span class="tag">&lt;groupId&gt;</span>org.codehaus.griffon.plugins<span class="tag">&lt;/groupId&gt;</span>
             <span class="tag">&lt;artifactId&gt;</span>griffon-hibernate5-plugin<span class="tag">&lt;/artifactId&gt;</span>
-            <span class="tag">&lt;version&gt;</span>1.0.0<span class="tag">&lt;/version&gt;</span>
+            <span class="tag">&lt;version&gt;</span>1.1.0<span class="tag">&lt;/version&gt;</span>
             <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
             <span class="tag">&lt;scope&gt;</span>import<span class="tag">&lt;/scope&gt;</span>
         <span class="tag">&lt;/dependency&gt;</span>
@@ -713,8 +719,8 @@ bind(GriffonAddon.class)
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.0<br>
-Last updated 2015-10-09 09:32:46 UTC
+Version 1.1.0<br>
+Last updated 2015-10-09 13:11:02 UTC
 </div>
 </div>
 </body>
