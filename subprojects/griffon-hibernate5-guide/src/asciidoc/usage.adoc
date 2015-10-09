@@ -31,7 +31,8 @@ shows
 [source,groovy,options="nowrap"]
 .src/main/resources/Hibernate5.groovy
 ----
-include::{path_griffon_hibernate5_core}/src/test/resources/Hibernate5.groovy[lines=35..-1]
+include::{path_griffon_hibernate5_core}/src/test/resources/Hibernate5.groovy[lines=35..40]
+include::{path_griffon_hibernate5_core}/src/test/resources/Hibernate5.groovy[lines=42..-1]
 ----
 
 === Session Properties
@@ -92,6 +93,11 @@ The following table summarizes the properties that can be specified inside a `se
 | boolean
 | true
 | Expose the connection pool using JMX.
+
+| mapClassesPattern
+| String or Pattern
+| /.*/
+| Maps only those classes which are matching mapClassesPattern value.
 
 |====
 

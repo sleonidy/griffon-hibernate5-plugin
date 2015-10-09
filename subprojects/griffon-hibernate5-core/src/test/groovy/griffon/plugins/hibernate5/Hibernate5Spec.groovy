@@ -164,6 +164,45 @@ class Hibernate5Spec extends Specification {
         thrown(RuntimeHibernate5Exception)
     }
 
+    void "Exception is thrown when using Person class on 'people' datasource"() {
+        when:
+        hibernate5Handler.withHbm5Session(name) { String sessionFactoryName, Session session ->
+            session.createQuery("from Person").list()
+        }
+
+        then:
+        thrown(RuntimeHibernate5Exception)
+
+        where:
+        name     | _
+        'people' | _
+    }
+
+    void "AnotherPerson class can be used on 'people' datasource"() {
+        when:
+        List peopleIn = hibernate5Handler.withHbm5Session(name) { String sessionFactoryName, Session session ->
+            [[id: 1, name: 'Danno', lastname: 'Ferrin'],
+             [id: 2, name: 'Andres', lastname: 'Almiray'],
+             [id: 3, name: 'James', lastname: 'Williams'],
+             [id: 4, name: 'Guillaume', lastname: 'Laforge'],
+             [id: 5, name: 'Jim', lastname: 'Shingler'],
+             [id: 6, name: 'Alexander', lastname: 'Klein'],
+             [id: 7, name: 'Rene', lastname: 'Groeschke']].each { data ->
+                session.save(new AnotherPerson(data))
+            }
+        }
+
+        List peopleOut = hibernate5Handler.withHbm5Session(name) { String sessionFactoryName, Session session ->
+            session.createQuery('from AnotherPerson').list()*.asMap()
+        }
+
+        then:
+        peopleIn == peopleOut
+
+        where:
+        name     | _
+        'people' | _
+    }
     @BindTo(Hibernate5Bootstrap)
     private TestHibernate5Bootstrap bootstrap = new TestHibernate5Bootstrap()
 }

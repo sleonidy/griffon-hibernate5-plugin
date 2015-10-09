@@ -16,28 +16,24 @@
 package org.codehaus.griffon.runtime.hibernate5.internal;
 
 import griffon.core.GriffonApplication;
-import griffon.plugins.datasource.DataSourceStorage;
 import griffon.plugins.hibernate5.Hibernate5Mapping;
-import griffon.plugins.hibernate5.Hibernate5Storage;
 import griffon.util.ServiceLoaderUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Interceptor;
 import org.hibernate.boot.model.naming.ImplicitNamingStrategy;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
-import org.hibernate.cfg.NamingStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import static griffon.util.ConfigUtils.getConfigValue;
 import static griffon.util.ConfigUtils.getConfigValueAsBoolean;
-import static griffon.util.ConfigUtils.getConfigValueAsString;
 import static griffon.util.GriffonNameUtils.isBlank;
 
 /**
@@ -48,12 +44,12 @@ import static griffon.util.GriffonNameUtils.isBlank;
  * @author Andres Almiray
  */
 public class HibernateConfigurationHelper {
-    private static final Logger LOG = LoggerFactory.getLogger(HibernateConfigurationHelper.class);
     public static final String ENTITY_INTERCEPTOR = "entityInterceptor";
     public static final String NAMING_STRATEGY = "namingStrategy";
     public static final String PROPS = "props";
+    public static final String MAP_CLASSES_PATTERN = "mapClassesPattern";
+    private static final Logger LOG = LoggerFactory.getLogger(HibernateConfigurationHelper.class);
     private static final String HBM_XML_SUFFIX = ".hbm.xml";
-    private static final String CONNECTION_PROVIDER = "connection_provider";
 
     private final Map<String, Object> sessionConfig;
     private final String dataSourceName;
@@ -138,12 +134,22 @@ public class HibernateConfigurationHelper {
         }
     }
 
+    private boolean matchMapClassPattern(Object pattern, String line) {
+        if (pattern instanceof Pattern)
+            return ((Pattern) pattern).matcher(line).matches();
+        else if (pattern instanceof String)
+            return Pattern.compile((String) pattern).matcher(line).matches();
+        return false;
+    }
+
     private void applyMappings(final Configuration config) {
+        final Object mapClasses = getConfigValue(sessionConfig, MAP_CLASSES_PATTERN, Pattern.compile(".*"));
         ServiceLoaderUtils.load(application.getApplicationClassLoader().get(), "META-INF/types", Hibernate5Mapping.class, new ServiceLoaderUtils.LineProcessor() {
             @Override
             public void process(ClassLoader classLoader, Class<?> type, String line) {
                 line = line.trim();
-                if (isBlank(line)) return;
+
+                if (isBlank(line) || !matchMapClassPattern(mapClasses, line)) return;
                 line = line.replace('.', '/');
                 LOG.debug("Registering {} as hibernate resource", line + HBM_XML_SUFFIX);
                 config.addResource(line + HBM_XML_SUFFIX);
