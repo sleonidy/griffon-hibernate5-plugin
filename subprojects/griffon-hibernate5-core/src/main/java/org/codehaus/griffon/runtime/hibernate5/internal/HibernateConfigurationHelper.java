@@ -17,6 +17,7 @@ package org.codehaus.griffon.runtime.hibernate5.internal;
 
 import griffon.core.GriffonApplication;
 import griffon.plugins.hibernate5.Hibernate5Mapping;
+import griffon.plugins.hibernate5.exceptions.RuntimeHibernate5Exception;
 import griffon.util.ServiceLoaderUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Interceptor;
@@ -142,17 +143,32 @@ public class HibernateConfigurationHelper {
         return false;
     }
 
+    private void addAnnotatedClass(final Configuration configuration, ClassLoader classLoader, String className) {
+        LOG.debug("Registering as annotated class");
+        try {
+            Class<?> clazz = classLoader.loadClass(className);
+            configuration.addAnnotatedClass(clazz);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeHibernate5Exception(dataSourceName, e);
+        }
+    }
+
     private void applyMappings(final Configuration config) {
         final Object mapClasses = getConfigValue(sessionConfig, MAP_CLASSES_PATTERN, Pattern.compile(".*"));
         ServiceLoaderUtils.load(application.getApplicationClassLoader().get(), "META-INF/types", Hibernate5Mapping.class, new ServiceLoaderUtils.LineProcessor() {
             @Override
             public void process(ClassLoader classLoader, Class<?> type, String line) {
-                line = line.trim();
+                String originalName = line.trim();
 
-                if (isBlank(line) || !matchMapClassPattern(mapClasses, line)) return;
-                line = line.replace('.', '/');
+                if (isBlank(originalName) || !matchMapClassPattern(mapClasses, originalName)) return;
+                line = originalName.replace('.', '/');
                 LOG.debug("Registering {} as hibernate resource", line + HBM_XML_SUFFIX);
-                config.addResource(line + HBM_XML_SUFFIX);
+                if (classLoader.getResource(line + HBM_XML_SUFFIX) != null)
+                    config.addResource(line + HBM_XML_SUFFIX);
+                else {
+                    addAnnotatedClass(config, classLoader, originalName);
+                }
+
             }
         });
 
