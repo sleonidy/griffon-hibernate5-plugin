@@ -30,8 +30,9 @@ gradle.taskGraph.whenReady { g ->
 
 if (!project.hasProperty('bintrayUsername')) ext.bintrayUsername = ''
 if (!project.hasProperty('bintrayApiKey')) ext.bintrayApiKey = ''
-
+bintrayUpload.dependsOn generateBom
 bintray {
+
     user = project.bintrayUsername
     key = project.bintrayApiKey
     publications = ['mavenBom']
