@@ -14,7 +14,7 @@ before_install:
 after_success:
 - "./gradlew coveralls"
 - "scripts/publish.sh"
-- "scripts/update-gh-page.sh"
+- "scripts/update-gh-pages.sh"
 - ""
 env:
   global:
