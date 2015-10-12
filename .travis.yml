@@ -9,10 +9,13 @@ before_install:
 - export DISPLAY=:99.0
 - sh -e /etc/init.d/xvfb start
 - chmod +x gradlew
+- chmod +x scripts/publish.sh
+- chmod +x scripts/update-gh-pages.sh
 after_success:
 - "./gradlew coveralls"
-- "./gradlew bintrayUpload -PbintrayUsername=$bintrayUsername -PbintrayApiKey=$bintrayApiKey"
-- "./gradlew publishGhPages -PgithubUsername=$githubUsername -PgithubPassword=$githubPassword"
+- "scripts/publish.sh"
+- "scripts/update-gh-pages.sh"
+- ""
 env:
   global:
   - secure: CAp7iVZj6nHXdVsge7jFC8iHD+MBAcJnX2sADgOKub6iSstVAlmNGan+5l3ZqjVU/e4PQdC5nChov8EudQDZXVLQI5bLSrWukJsTiVgRDmWO7fJUWH5gU9NjXz97gC7My2n4+rFsdCkRIXilBqRQjlLNq56wzTT9c03rU1b211p1Xf143t6PHvPrIFS9OfKtv7AjP/YO0E6P5srqu8yKEPF4D814ktkcJmoEuuQrwjHUX3e0FbzO3DoC7zMKWk9MgLkP4rTU7aXsWfi3tthIOWs/tRQaviGkaOvZPCuko3t8Mg792lSmmB0civh3u0eix6YZ9SVPFK+ftpQiOLwx2LL9jiTme+X+/2ztrSw+lQkhgDEF7+ZYfccx40/1jx+El6mlMWAZO9KoAXwGzXKha7A/ar5yaMLMdr3Na3Kt3UNZr16bD8ohuRvsZInUhggklhzSsv9g0xEd6c4GspOBZ+tAHlo/PWvfVobII+kDsJMoySjvkz1h1PsQVOl0gS8szfRqeZNNR5ZFA7QtZJP0BFaYK3OV/orAcRDzsA0Wp+/0zz/Kdb312yjqCYEK4SGGgVHKz61dIeiZ4PeM5XREtKGf+WK55Qa2PAPEhfsJI3g+gtjvtMaYtIpe27wErCjQGABI+Il4x/2bGe7y5t0gqIVbzMo1ejLOR1p2xZA4Odk=

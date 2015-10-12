@@ -149,7 +149,9 @@ publishGhPages.dependsOn(project(":${pluginBaseName}-guide").guide)
 coveralls {
     sourceDirs = files(jacocoProjects.sourceSets.main.allSource.srcDirs).files.absolutePath
 }
-
+task getVersion << {
+    println version
+}
 task jacocoRootReport(type: org.gradle.testing.jacoco.tasks.JacocoReport) {
     dependsOn = jacocoProjects.test
     additionalSourceDirs = files(jacocoProjects.sourceSets.main.allSource.srcDirs)
