@@ -17,10 +17,12 @@ package org.codehaus.griffon.runtime.hibernate5.internal;
 
 import griffon.core.GriffonApplication;
 import griffon.plugins.hibernate5.Hibernate5Mapping;
+import griffon.plugins.hibernate5.exceptions.RuntimeHibernate5Exception;
 import griffon.util.ServiceLoaderUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Interceptor;
 import org.hibernate.boot.model.naming.ImplicitNamingStrategy;
+import org.hibernate.boot.model.naming.PhysicalNamingStrategy;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.slf4j.Logger;
@@ -46,6 +48,8 @@ import static griffon.util.GriffonNameUtils.isBlank;
 public class HibernateConfigurationHelper {
     public static final String ENTITY_INTERCEPTOR = "entityInterceptor";
     public static final String NAMING_STRATEGY = "namingStrategy";
+    public static final String PHYSICAL_NAMING_STRATEGY = "physicalNamingStrategy";
+    public static final String IMPLICIT_NAMING_STRATEGY = "implicitNamingStrategy";
     public static final String PROPS = "props";
     public static final String MAP_CLASSES_PATTERN = "mapClassesPattern";
     private static final Logger LOG = LoggerFactory.getLogger(HibernateConfigurationHelper.class);
@@ -97,6 +101,26 @@ public class HibernateConfigurationHelper {
     private void applyNamingStrategy(Configuration config) {
         Object namingStrategy = getConfigValue(sessionConfig, NAMING_STRATEGY, null);
         if (namingStrategy instanceof Class) {
+            config.setPhysicalNamingStrategy((PhysicalNamingStrategy) newInstanceOf((Class) namingStrategy));
+        } else if (namingStrategy instanceof String) {
+            config.setPhysicalNamingStrategy((PhysicalNamingStrategy) newInstanceOf((String) namingStrategy));
+        }
+        applyPhysicalNamingStrategy(config);
+        applyImplicitNamingStrategy(config);
+    }
+
+    private void applyImplicitNamingStrategy(Configuration config) {
+        Object namingStrategy = getConfigValue(sessionConfig, IMPLICIT_NAMING_STRATEGY, null);
+        if (namingStrategy instanceof Class) {
+            config.setImplicitNamingStrategy((ImplicitNamingStrategy) newInstanceOf((Class) namingStrategy));
+        } else if (namingStrategy instanceof String) {
+            config.setImplicitNamingStrategy((ImplicitNamingStrategy) newInstanceOf((String) namingStrategy));
+        }
+    }
+
+    private void applyPhysicalNamingStrategy(Configuration config) {
+        Object namingStrategy = getConfigValue(sessionConfig, PHYSICAL_NAMING_STRATEGY, null);
+        if (namingStrategy instanceof Class) {
             config.setImplicitNamingStrategy((ImplicitNamingStrategy) newInstanceOf((Class) namingStrategy));
         } else if (namingStrategy instanceof String) {
             config.setImplicitNamingStrategy((ImplicitNamingStrategy) newInstanceOf((String) namingStrategy));
@@ -142,17 +166,32 @@ public class HibernateConfigurationHelper {
         return false;
     }
 
+    private void addAnnotatedClass(final Configuration configuration, ClassLoader classLoader, String className) {
+        LOG.debug("Registering as annotated class");
+        try {
+            Class<?> clazz = classLoader.loadClass(className);
+            configuration.addAnnotatedClass(clazz);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeHibernate5Exception(dataSourceName, e);
+        }
+    }
+
     private void applyMappings(final Configuration config) {
         final Object mapClasses = getConfigValue(sessionConfig, MAP_CLASSES_PATTERN, Pattern.compile(".*"));
         ServiceLoaderUtils.load(application.getApplicationClassLoader().get(), "META-INF/types", Hibernate5Mapping.class, new ServiceLoaderUtils.LineProcessor() {
             @Override
             public void process(ClassLoader classLoader, Class<?> type, String line) {
-                line = line.trim();
+                String originalName = line.trim();
 
-                if (isBlank(line) || !matchMapClassPattern(mapClasses, line)) return;
-                line = line.replace('.', '/');
+                if (isBlank(originalName) || !matchMapClassPattern(mapClasses, originalName)) return;
+                line = originalName.replace('.', '/');
                 LOG.debug("Registering {} as hibernate resource", line + HBM_XML_SUFFIX);
-                config.addResource(line + HBM_XML_SUFFIX);
+                if (classLoader.getResource(line + HBM_XML_SUFFIX) != null)
+                    config.addResource(line + HBM_XML_SUFFIX);
+                else {
+                    addAnnotatedClass(config, classLoader, originalName);
+                }
+
             }
         });
 
