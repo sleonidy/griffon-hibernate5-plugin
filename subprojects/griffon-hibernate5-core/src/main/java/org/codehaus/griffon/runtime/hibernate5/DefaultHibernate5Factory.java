@@ -25,6 +25,7 @@ import griffon.plugins.hibernate5.Hibernate5Factory;
 import griffon.plugins.monitor.MBeanManager;
 import griffon.util.CollectionUtils;
 import org.codehaus.griffon.runtime.core.storage.AbstractObjectFactory;
+import org.codehaus.griffon.runtime.datasource.DefaultDataSourceFactory;
 import org.codehaus.griffon.runtime.hibernate5.internal.HibernateConfigurationHelper;
 import org.codehaus.griffon.runtime.jmx.SessionFactoryMonitor;
 import org.hibernate.Session;
@@ -127,6 +128,7 @@ public class DefaultHibernate5Factory extends AbstractObjectFactory<SessionFacto
             }
         } finally {
             if (session != null) {
+
                 session.close();
             }
         }
@@ -172,7 +174,7 @@ public class DefaultHibernate5Factory extends AbstractObjectFactory<SessionFacto
     @SuppressWarnings("ConstantConditions")
     protected Configuration createConfiguration(@Nonnull Map<String, Object> config, @Nonnull String dataSourceName) {
         DataSource dataSource = getDataSource(dataSourceName);
-        HibernateConfigurationHelper configHelper = new HibernateConfigurationHelper(getApplication(), config, dataSourceName, dataSource);
+        HibernateConfigurationHelper configHelper = new HibernateConfigurationHelper(getApplication(), config, dataSourceName, dataSource, (Map) ((DefaultDataSourceFactory) dataSourceFactory).getConfiguration().get("dataSources"));
         Configuration configuration = configHelper.buildConfiguration();
         getApplication().getEventRouter().publishEvent("Hibernate5ConfigurationAvailable",
             asList(CollectionUtils.map()

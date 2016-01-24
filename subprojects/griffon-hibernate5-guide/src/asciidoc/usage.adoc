@@ -99,6 +99,15 @@ The following table summarizes the properties that can be specified inside a `se
 | /.*/
 | Maps only those classes which are matching mapClassesPattern value.
 
+| currentSessionContext
+| String
+|
+| Current session context.
+
+| provider_class
+| String
+|
+| Provider class for "hibernate" connection.
 |====
 
 === Accessing the Datasource

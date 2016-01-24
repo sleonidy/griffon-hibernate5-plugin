@@ -22,6 +22,7 @@ dependencies {
 
     testRuntime "org.codehaus.griffon:griffon-guice:${griffon.version}"
     testRuntime "org.codehaus.griffon:griffon-groovy:${griffon.version}"
+    testRuntime "org.hibernate:hibernate-c3p0:$hibernateVersion"
 }
 
 compileGroovy.enabled = false

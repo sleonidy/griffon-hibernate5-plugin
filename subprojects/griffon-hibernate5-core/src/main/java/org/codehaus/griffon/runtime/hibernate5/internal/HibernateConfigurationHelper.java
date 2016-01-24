@@ -30,12 +30,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import static griffon.util.ConfigUtils.getConfigValue;
-import static griffon.util.ConfigUtils.getConfigValueAsBoolean;
+import static griffon.util.ConfigUtils.*;
 import static griffon.util.GriffonNameUtils.isBlank;
 
 /**
@@ -52,6 +52,8 @@ public class HibernateConfigurationHelper {
     public static final String IMPLICIT_NAMING_STRATEGY = "implicitNamingStrategy";
     public static final String PROPS = "props";
     public static final String MAP_CLASSES_PATTERN = "mapClassesPattern";
+    public static final String CURRENT_SESSION_CONTEXT = "currentSessionContext";
+    public static final String PROVIDER_CLASS = "provider_class";
     private static final Logger LOG = LoggerFactory.getLogger(HibernateConfigurationHelper.class);
     private static final String HBM_XML_SUFFIX = ".hbm.xml";
 
@@ -59,13 +61,25 @@ public class HibernateConfigurationHelper {
     private final String dataSourceName;
     private final DataSource dataSource;
     private final GriffonApplication application;
+    private final Map<String, String> dataSourceConfiguration;
 
+    private static Map<String, String> groovyToHibernateConfigurationName;
 
-    public HibernateConfigurationHelper(GriffonApplication application, Map<String, Object> sessionConfig, String dataSourceName, DataSource dataSource) {
+    static {
+        groovyToHibernateConfigurationName = new HashMap<>();
+        groovyToHibernateConfigurationName.put("driverClassName", "hibernate.connection.driver_class");
+        groovyToHibernateConfigurationName.put("username", "hibernate.connection.username");
+        groovyToHibernateConfigurationName.put("password", "hibernate.connection.password");
+        groovyToHibernateConfigurationName.put("url", "hibernate.connection.url");
+
+    }
+
+    public HibernateConfigurationHelper(GriffonApplication application, Map<String, Object> sessionConfig, String dataSourceName, DataSource dataSource, Map dataSources) {
         this.application = application;
         this.sessionConfig = sessionConfig;
         this.dataSourceName = dataSourceName;
         this.dataSource = dataSource;
+        this.dataSourceConfiguration = (Map<String, String>) dataSources.get(dataSourceName);
     }
 
     public String getDataSourceName() {
@@ -85,7 +99,29 @@ public class HibernateConfigurationHelper {
         applyProperties(config);
         applyDialect(config);
         applyMappings(config);
+        applySessionContext(config);
+        applyProviderClassToHibernate(config);
         return config;
+    }
+
+    private void applyProviderClassToHibernate(Configuration config) {
+        String providerClass = getConfigValueAsString(sessionConfig, PROVIDER_CLASS, null);
+        if (providerClass!=null) {
+            config.setProperty("hibernate.connection.provider_class", providerClass);
+            // Copying all connection configuration from data source to hibernate
+            for (Map.Entry<String, String> keyValueConfiguration : dataSourceConfiguration.entrySet()) {
+                if (groovyToHibernateConfigurationName.containsKey(keyValueConfiguration.getKey()))
+                    config.setProperty(groovyToHibernateConfigurationName.get(keyValueConfiguration.getKey()), keyValueConfiguration.getValue());
+            }
+        }
+
+
+    }
+
+    private void applySessionContext(Configuration config) {
+        String sessionContext = getConfigValueAsString(sessionConfig, CURRENT_SESSION_CONTEXT, null);
+        if (sessionContext != null)
+            config.setProperty("hibernate.current_session_context_class", sessionContext);
     }
 
 
@@ -136,6 +172,7 @@ public class HibernateConfigurationHelper {
                 config.setProperty(entry.getKey(), entry.getValue());
             }
         }
+
 
         if (getConfigValueAsBoolean(sessionConfig, "logSql", false)) {
             config.setProperty("hibernate.show_sql", "true");
