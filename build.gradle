@@ -166,3 +166,6 @@ task jacocoRootReport(type: org.gradle.testing.jacoco.tasks.JacocoReport) {
         xml.destination = "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
     }
 }
+wrapper {
+    gradleVersion = '2.10'
+}
