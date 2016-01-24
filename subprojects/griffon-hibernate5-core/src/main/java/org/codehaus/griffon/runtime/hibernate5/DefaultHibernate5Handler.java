@@ -22,7 +22,7 @@ import griffon.plugins.hibernate5.Hibernate5Storage;
 import griffon.plugins.hibernate5.exceptions.RuntimeHibernate5Exception;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.resource.transaction.spi.TransactionStatus;
+import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,23 +62,31 @@ public class DefaultHibernate5Handler implements Hibernate5Handler {
     public <R> R withHbm5Session(@Nonnull String sessionFactoryName, @Nonnull Hibernate5Callback<R> callback) throws RuntimeHibernate5Exception {
         requireNonBlank(sessionFactoryName, ERROR_SESSION_FACTORY_NAME_BLANK);
         requireNonNull(callback, ERROR_CALLBACK_NULL);
-
         SessionFactory sf = getSessionFactory(sessionFactoryName);
         if (LOG.isDebugEnabled()) {
             LOG.debug("Executing statements on session '{}'", sessionFactoryName);
         }
-        Session session = sf.openSession();
+        Session session = null;
+        Transaction transaction = null;
         try {
-            session.beginTransaction();
-            return callback.handle(sessionFactoryName, session);
+            session = sf.openSession();
+            transaction = session.beginTransaction();
+            R result = callback.handle(sessionFactoryName, session);
+            transaction.commit();
+            return result;
         } catch (Exception e) {
+            try {
+                if (transaction != null)
+                    transaction.rollback();
+            } catch (RuntimeException runtimeException) {
+                LOG.error("Failed to rollback", runtimeException);
+            }
             throw new RuntimeHibernate5Exception(sessionFactoryName, e);
         } finally {
             try {
-                if (session.getTransaction().getStatus()!= TransactionStatus.ROLLED_BACK) {
-                    session.getTransaction().commit();
+                if (session != null) {
+                    session.close();
                 }
-                session.close();
             } catch (Exception e) {
                 throw new RuntimeHibernate5Exception(sessionFactoryName, e);
             }
