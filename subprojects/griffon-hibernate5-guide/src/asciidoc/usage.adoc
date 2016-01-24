@@ -99,6 +99,15 @@ The following table summarizes the properties that can be specified inside a `se
 | /.*/
 | Maps only those classes which are matching mapClassesPattern value.
 
+| currentSessionContext
+| String
+|
+| Current session context.
+
+| provider_class
+| String
+|
+| Provider class for "hibernate" connection.
 |====
 
 === Accessing the Datasource
@@ -127,22 +136,30 @@ include::{path_griffon_hibernate5_core}/src/main/java/griffon/plugins/hibernate5
 
 === Mappings
 
-Hibernate requires mapping resources for matching classes to tables. The plugin can automatically discover mappings
-that should be added to a `{link_session_factory}` as long as they are annotated with `@TypeProviderFor`. For example
+The plugin can automatically discover mappings that should be added to a `{link_session_factory}` as long as they are annotated with `@TypeProviderFor`.
+Hibernate provides two ways to define mapping . One through class + xml.
+For example:
 
 [source,groovy,options="nowrap"]
-.src/main/groovy/com/acme/Person.groovy
+.src/main/groovy/griffon/plugins/hibernate5/Person.groovy
 ----
 include::{path_griffon_hibernate5_core}/src/test/groovy/griffon/plugins/hibernate5/Person.groovy[lines=16..-1]
 ----
 
-Don't forget mappings require a matching XML file that contains query definitions, such as
+And matching XML file that contains query definitions, such as
 
 [source,xml,options="nowrap"]
 [subs="verbatim,attributes"]
 .src/main/resources/griffon/plugins/hibernate5/Person.hbm.xml
 ----
 include::{path_griffon_hibernate5_core}/src/test/resources/griffon/plugins/hibernate5/Person.hbm.xml[lines=18..-1]
+----
+The other way is through class with annotations.
+For example:
+[source,groovy,options="nowrap"]
+.src/main/groovy/griffon/plugins/hibernate5/User.groovy
+----
+include::{path_griffon_hibernate5_core}/src/test/groovy/griffon/plugins/hibernate5/User.groovy[lines=15..-1]
 ----
 
 === Bootstrap

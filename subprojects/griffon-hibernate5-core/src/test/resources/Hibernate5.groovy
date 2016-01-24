@@ -35,6 +35,7 @@ environments {
 sessionFactories {
     internal {
         schema = 'create-drop'
+        provider_class = "org.hibernate.c3p0.internal.C3P0ConnectionProvider"
     }
     people {
         schema = 'create-drop'

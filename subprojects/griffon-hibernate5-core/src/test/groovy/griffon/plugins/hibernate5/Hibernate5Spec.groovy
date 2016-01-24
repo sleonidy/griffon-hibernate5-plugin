@@ -203,6 +203,38 @@ class Hibernate5Spec extends Specification {
         name     | _
         'people' | _
     }
+
+    void 'Execute statements on annotated class'() {
+        when:
+        List userIn = hibernate5Handler.withHbm5Session() { String sessionFactoryName, Session session ->
+            [[id: 1, name: 'Danno', lastname: 'Ferrin'],
+             [id: 2, name: 'Andres', lastname: 'Almiray'],
+             [id: 3, name: 'James', lastname: 'Williams'],
+             [id: 4, name: 'Guillaume', lastname: 'Laforge'],
+             [id: 5, name: 'Jim', lastname: 'Shingler'],
+             [id: 6, name: 'Alexander', lastname: 'Klein'],
+             [id: 7, name: 'Rene', lastname: 'Groeschke']].each { data ->
+                session.save(new User(data))
+            }
+        }
+
+        List userOut = hibernate5Handler.withHbm5Session() { String sessionFactoryName, Session session ->
+            session.createCriteria(User).list()*.asMap()
+        }
+
+        then:
+        userIn == userOut
+    }
+
+    void 'Mapped class without @Entity annotation should throw exception'() {
+        when:
+        hibernate5Handler.withHbm5Session() { String sessionFactoryName, Session session ->
+            session.saveOrUpdate(new NotAnnotatedClass([id: 2, name: 'Andres', lastname: 'Almiray']))
+        }
+
+        then:
+        thrown(RuntimeHibernate5Exception)
+    }
     @BindTo(Hibernate5Bootstrap)
     private TestHibernate5Bootstrap bootstrap = new TestHibernate5Bootstrap()
 }
