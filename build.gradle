@@ -7,8 +7,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.codehaus.griffon:gradle-griffon-plugin:2.5.0'
-        classpath 'org.codehaus.griffon:gradle-griffon-build-plugin:2.5.0'
+        classpath 'org.codehaus.griffon:gradle-griffon-plugin:2.9.1'
+        classpath 'org.codehaus.griffon:gradle-griffon-build-plugin:2.9.1'
         classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.6.0'
         classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.5'
@@ -60,11 +60,6 @@ ext.jacocoProjects = []
 
 subprojects { subproj ->
     plugins.withType(JavaPlugin) {
-        configurations {
-            compileOnly
-            testCompileOnly
-        }
-
         subproj.tasks.withType(JavaCompile) {
             sourceCompatibility = subproj.sourceCompatibility
             targetCompatibility = subproj.targetCompatibility
@@ -73,26 +68,6 @@ subprojects { subproj ->
         subproj.tasks.withType(GroovyCompile) {
             sourceCompatibility = subproj.sourceCompatibility
             targetCompatibility = subproj.targetCompatibility
-        }
-
-        sourceSets {
-            main {
-                compileClasspath += [configurations.compileOnly]
-            }
-            test {
-                compileClasspath += [configurations.testCompileOnly]
-            }
-        }
-
-        javadoc {
-            classpath += [configurations.compileOnly]
-        }
-
-        idea {
-            module {
-                scopes.PROVIDED.plus += [configurations.compileOnly]
-                scopes.PROVIDED.plus += [configurations.testCompileOnly]
-            }
         }
 
         dependencies {
@@ -146,12 +121,16 @@ githubPages {
 
 publishGhPages.dependsOn(project(":${pluginBaseName}-guide").guide)
 
+task getVersion {
+    doLast {
+        println version
+    }
+}
+
 coveralls {
     sourceDirs = files(jacocoProjects.sourceSets.main.allSource.srcDirs).files.absolutePath
 }
-task getVersion << {
-    println version
-}
+
 task jacocoRootReport(type: org.gradle.testing.jacoco.tasks.JacocoReport) {
     dependsOn = jacocoProjects.test
     additionalSourceDirs = files(jacocoProjects.sourceSets.main.allSource.srcDirs)
@@ -165,7 +144,4 @@ task jacocoRootReport(type: org.gradle.testing.jacoco.tasks.JacocoReport) {
         html.destination = "${buildDir}/reports/jacoco/test/html"
         xml.destination = "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
     }
-}
-wrapper {
-    gradleVersion = '2.10'
 }
