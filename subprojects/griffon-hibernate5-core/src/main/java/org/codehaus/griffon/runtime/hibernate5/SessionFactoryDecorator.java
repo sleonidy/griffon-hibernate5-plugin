@@ -16,13 +16,7 @@
 package org.codehaus.griffon.runtime.hibernate5;
 
 import org.hibernate.Cache;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionBuilder;
-import org.hibernate.SessionFactory;
-import org.hibernate.StatelessSession;
-import org.hibernate.StatelessSessionBuilder;
-import org.hibernate.TypeHelper;
+import org.hibernate.*;
 import org.hibernate.boot.spi.SessionFactoryOptions;
 import org.hibernate.engine.spi.FilterDefinition;
 import org.hibernate.metadata.ClassMetadata;
@@ -32,8 +26,11 @@ import org.hibernate.stat.Statistics;
 import javax.annotation.Nonnull;
 import javax.naming.NamingException;
 import javax.naming.Reference;
-import java.io.Serializable;
+import javax.persistence.*;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
 import java.sql.Connection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -125,6 +122,11 @@ public class SessionFactoryDecorator implements SessionFactory {
     }
 
     @Override
+    public Map<String, Object> getProperties() {
+        return null;
+    }
+
+    @Override
     public boolean isClosed() {
         return delegate.isClosed();
     }
@@ -132,6 +134,26 @@ public class SessionFactoryDecorator implements SessionFactory {
     @Override
     public Cache getCache() {
         return delegate.getCache();
+    }
+
+    @Override
+    public PersistenceUnitUtil getPersistenceUnitUtil() {
+        return null;
+    }
+
+    @Override
+    public void addNamedQuery(String name, Query query) {
+
+    }
+
+    @Override
+    public <T> T unwrap(Class<T> cls) {
+        return null;
+    }
+
+    @Override
+    public <T> void addNamedEntityGraph(String graphName, EntityGraph<T> entityGraph) {
+
     }
 
 
@@ -158,5 +180,45 @@ public class SessionFactoryDecorator implements SessionFactory {
     @Override
     public Reference getReference() throws NamingException {
         return delegate.getReference();
+    }
+
+    @Override
+    public <T> List<EntityGraph<? super T>> findEntityGraphsByType(Class<T> entityClass) {
+        return delegate.findEntityGraphsByType(entityClass);
+    }
+
+    @Override
+    public EntityManager createEntityManager() {
+        return delegate.createEntityManager();
+    }
+
+    @Override
+    public EntityManager createEntityManager(Map map) {
+        return delegate.createEntityManager(map);
+    }
+
+    @Override
+    public EntityManager createEntityManager(SynchronizationType synchronizationType) {
+        return delegate.createEntityManager(synchronizationType);
+    }
+
+    @Override
+    public EntityManager createEntityManager(SynchronizationType synchronizationType, Map map) {
+        return delegate.createEntityManager(synchronizationType, map);
+    }
+
+    @Override
+    public CriteriaBuilder getCriteriaBuilder() {
+        return delegate.getCriteriaBuilder();
+    }
+
+    @Override
+    public Metamodel getMetamodel() {
+        return delegate.getMetamodel();
+    }
+
+    @Override
+    public boolean isOpen() {
+        return delegate.isOpen();
     }
 }
