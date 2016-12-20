@@ -86,26 +86,31 @@ public class SessionFactoryDecorator implements SessionFactory {
         return delegate.openStatelessSession(connection);
     }
 
+    @Deprecated
     @Override
     public ClassMetadata getClassMetadata(Class entityClass) {
         return delegate.getClassMetadata(entityClass);
     }
 
+    @Deprecated
     @Override
     public ClassMetadata getClassMetadata(String entityName) {
         return delegate.getClassMetadata(entityName);
     }
 
+    @Deprecated
     @Override
     public CollectionMetadata getCollectionMetadata(String roleName) {
         return delegate.getCollectionMetadata(roleName);
     }
 
+    @Deprecated
     @Override
     public Map<String, ClassMetadata> getAllClassMetadata() {
         return delegate.getAllClassMetadata();
     }
 
+    @Deprecated
     @Override
     public Map getAllCollectionMetadata() {
         return delegate.getAllCollectionMetadata();
@@ -123,7 +128,7 @@ public class SessionFactoryDecorator implements SessionFactory {
 
     @Override
     public Map<String, Object> getProperties() {
-        return null;
+        return delegate.getProperties();
     }
 
     @Override
@@ -138,22 +143,22 @@ public class SessionFactoryDecorator implements SessionFactory {
 
     @Override
     public PersistenceUnitUtil getPersistenceUnitUtil() {
-        return null;
+        return delegate.getPersistenceUnitUtil();
     }
 
     @Override
     public void addNamedQuery(String name, Query query) {
-
+        delegate.addNamedQuery(name, query);
     }
 
     @Override
     public <T> T unwrap(Class<T> cls) {
-        return null;
+        return delegate.unwrap(cls);
     }
 
     @Override
     public <T> void addNamedEntityGraph(String graphName, EntityGraph<T> entityGraph) {
-
+        delegate.addNamedEntityGraph(graphName, entityGraph);
     }
 
 
