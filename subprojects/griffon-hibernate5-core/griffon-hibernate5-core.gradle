@@ -17,9 +17,9 @@ dependencies {
 
     testCompileOnly "org.codehaus.griffon:griffon-groovy-compile:${griffon.version}"
     testCompile 'org.codehaus.griffon.plugins:griffon-datasource-core:1.2.0'
-    testRuntime('com.h2database:h2:1.4.191') { transitive = false }
-    testRuntime "org.slf4j:slf4j-simple:1.7.13"
-    testCompile "org.codehaus.groovy:groovy-all:2.4.5"
+    testRuntime('com.h2database:h2:1.4.193') { transitive = false }
+    testRuntime "org.slf4j:slf4j-simple:1.7.22"
+    testCompile "org.codehaus.groovy:groovy-all:2.4.7"
     testRuntime "org.codehaus.griffon:griffon-guice:${griffon.version}"
     testRuntime "org.codehaus.griffon:griffon-groovy:${griffon.version}"
     testRuntime "org.hibernate:hibernate-c3p0:$hibernateVersion"
