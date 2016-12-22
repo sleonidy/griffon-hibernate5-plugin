@@ -36,6 +36,7 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -174,7 +175,15 @@ public class DefaultHibernate5Factory extends AbstractObjectFactory<SessionFacto
     @SuppressWarnings("ConstantConditions")
     protected Configuration createConfiguration(@Nonnull Map<String, Object> config, @Nonnull String dataSourceName) {
         DataSource dataSource = getDataSource(dataSourceName);
-        HibernateConfigurationHelper configHelper = new HibernateConfigurationHelper(getApplication(), config, dataSourceName, dataSource, (Map) ((DefaultDataSourceFactory) dataSourceFactory).getConfiguration().get("dataSources"));
+        griffon.core.Configuration dataSourcesConfiguration = ((DefaultDataSourceFactory) dataSourceFactory).getConfiguration();
+        Map<String, Object> configurationMap = null;
+        if (dataSourcesConfiguration.containsKey("dataSources"))
+            configurationMap = (Map<String, Object>) dataSourcesConfiguration.get("dataSources");
+        if (configurationMap == null)
+            configurationMap = new HashMap<>();
+        configurationMap.put("default", dataSourcesConfiguration.get("dataSource"));
+
+        HibernateConfigurationHelper configHelper = new HibernateConfigurationHelper(getApplication(), config, dataSourceName, dataSource, configurationMap);
         Configuration configuration = configHelper.buildConfiguration();
         getApplication().getEventRouter().publishEvent("Hibernate5ConfigurationAvailable",
             asList(CollectionUtils.map()
