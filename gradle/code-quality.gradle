@@ -56,7 +56,7 @@ license {
         gdsl   = 'SLASHSTAR_STYLE'
         dsld   = 'SLASHSTAR_STYLE'
     }
-    ext.year = '2014-2016'
+    ext.year = '2014-2017'
     exclude '**/*.png'
 }
 
