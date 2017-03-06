@@ -5,8 +5,9 @@ griffon {
     disableDependencyResolution = false
     includeGroovyDependencies = false
     version = rootProject.griffonVersion
+    applicationProject=false
 }
-
+mainClassName=''
 apply from: rootProject.file('gradle/code-coverage.gradle')
 
 dependencies {
