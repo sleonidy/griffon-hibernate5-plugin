@@ -70,7 +70,7 @@ bintray {
     publications = ['mavenCustom']
     pkg {
         repo = 'griffon-plugins'
-//        userOrg = 'griffon'
+        userOrg = 'griffon'
         name = rootProject.name
         desc = rootProject.projectDescription
         licenses = ['Apache-2.0']
