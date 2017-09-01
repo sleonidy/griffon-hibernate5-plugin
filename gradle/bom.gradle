@@ -3,6 +3,30 @@ apply plugin: 'com.jfrog.bintray'
 
 generateBom {
     additionalDependencies = []
+    pomConfig {
+        description = projectDescription
+        url         = projectWebsiteUrl
+        scm {
+            url = projectVcsUrl
+        }
+        licenses {
+            license {
+                name         = 'The Apache Software License, Version 2.0'
+                url          = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution = 'repo'
+            }
+        }
+        developers {
+            developer {
+                id   = 'aalmiray'
+                name = 'Andres Almiray'
+            }
+            developer {
+                id   = 'sleonidy'
+                name = 'Leonid Yanovsky'
+            }
+        }
+    }
 }
 
 publishing {
@@ -30,15 +54,14 @@ gradle.taskGraph.whenReady { g ->
 
 if (!project.hasProperty('bintrayUsername')) ext.bintrayUsername = ''
 if (!project.hasProperty('bintrayApiKey')) ext.bintrayApiKey = ''
-bintrayUpload.dependsOn generateBom
-bintray {
 
+bintray {
     user = project.bintrayUsername
     key = project.bintrayApiKey
     publications = ['mavenBom']
     pkg {
         repo = 'griffon-plugins'
-//        userOrg = 'griffon'
+        userOrg = 'griffon'
         name = project.name
         desc = project.projectDescription
         licenses = ['Apache-2.0']
