@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 1.5.2">
+<meta name="generator" content="Asciidoctor 1.5.3">
 <meta name="author" content="Andres Almiray,Leonid Yanovsky">
-<title>Griffon hibernate5 Plugin</title>
+<title>Griffon Hibernate5 Plugin</title>
 <link rel="stylesheet" href="./css/style.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
 </head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Griffon hibernate5 Plugin</h1>
+<h1>Griffon Hibernate5 Plugin</h1>
 <div class="details">
 <span id="author" class="author">Andres Almiray,Leonid Yanovsky</span><br>
-<span id="revnumber">version 1.2.0</span>
+<span id="revnumber">version 2.0.0-SNAPSHOT</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -72,7 +72,7 @@ This plugin does NOT provide domain classes nor dynamic finders like GORM does.<
 <h2 id="_Usage"><a class="anchor" href="#_Usage"></a>2. Usage</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The following sections describe how you may use this plugin in an project.</p>
+<p>The following sections describe how you may use this plugin in a project.</p>
 </div>
 <div class="sect2">
 <h3 id="_configuration"><a class="anchor" href="#_configuration"></a>2.1. Configuration</h3>
@@ -134,9 +134,10 @@ shows</p>
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">sessionFactories {
     internal {
         schema = <span class="string"><span class="delimiter">'</span><span class="content">create-drop</span><span class="delimiter">'</span></span>
+        provider_class = <span class="string"><span class="delimiter">&quot;</span><span class="content">org.hibernate.c3p0.internal.C3P0ConnectionProvider</span><span class="delimiter">&quot;</span></span>
     }
     people {
-        schema = <span class="string"><span class="delimiter">'</span><span class="content">create-drop</span><span class="delimiter">'</span></span>
+        mapClassesPattern = <span class="regexp"><span class="delimiter">/</span><span class="content">.*AnotherPerson.*</span><span class="delimiter">/</span></span> <span class="comment">//Will map only classes matching this value</span>
     }
 }</code></pre>
 </div>
@@ -227,6 +228,18 @@ shows</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String or Pattern</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">/.*/</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Maps only those classes which are matching mapClassesPattern value.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">currentSessionContext</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Current session context.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">provider_class</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Provider class for "hibernate" connection.</p></td>
 </tr>
 </tbody>
 </table>
@@ -331,7 +344,22 @@ For example:</p>
 <div class="listingblock">
 <div class="title">src/main/groovy/griffon/plugins/hibernate5/User.groovy</div>
 <div class="content">
-<pre class="CodeRay highlight nowrap"><code data-lang="groovy">    <span class="annotation">@Id</span>
+<pre class="CodeRay highlight nowrap"><code data-lang="groovy"> *<span class="regexp"><span class="delimiter">/</span></span><span class="error">
+</span><span class="keyword">package</span> griffon.plugins.hibernate5
+
+<span class="keyword">import</span> <span class="include">griffon.metadata.TypeProviderFor</span>
+<span class="keyword">import</span> <span class="include">groovy.transform.ToString</span>
+
+<span class="keyword">import</span> <span class="include">javax.persistence.*</span>
+
+<span class="comment">/**
+ * @author Leonid Yanovsky
+ */</span>
+<span class="annotation">@ToString</span>
+<span class="annotation">@TypeProviderFor</span>(Hibernate5Mapping)
+<span class="annotation">@Entity</span>
+<span class="type">class</span> <span class="class">User</span> <span class="directive">implements</span> Hibernate5Mapping {
+    <span class="annotation">@Id</span>
     <span class="annotation">@GeneratedValue</span>(strategy = GenerationType.AUTO)
     <span class="type">int</span> id
     <span class="annotation">@Column</span>
@@ -559,7 +587,7 @@ into said class. The previous Groovy service example can be rewritten as follows
 <h3 id="_dsl_descriptors"><a class="anchor" href="#_dsl_descriptors"></a>2.5. DSL Descriptors</h3>
 <div class="paragraph">
 <p>This plugin provides DSL descriptors for Intellij IDEA and Eclipse (provided you have the Groovy Eclipse plugin installed).
-These descriptors are found inside the <code>griffon-hibernate5-groovy-compile-1.2.0.jar</code>, with locations</p>
+These descriptors are found inside the <code>griffon-hibernate5-groovy-compile-2.0.0-SNAPSHOT.jar</code>, with locations</p>
 </div>
 <div class="ulist">
 <ul>
@@ -591,7 +619,7 @@ may include the following snippet in <code>build.gradle</code></p>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">dependencies {
-    griffon 'org.codehaus.griffon.plugins:griffon-hibernate5-plugin:1.2.0'
+    griffon 'org.codehaus.griffon.plugins:griffon-hibernate5-plugin:2.0.0-SNAPSHOT'
 }</code></pre>
 </div>
 </div>
@@ -607,7 +635,7 @@ may include the following snippet in <code>build.gradle</code></p>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">dependencies {
-    compile 'org.codehaus.griffon.plugins:griffon-hibernate5-core:1.2.0'
+    compile 'org.codehaus.griffon.plugins:griffon-hibernate5-core:2.0.0-SNAPSHOT'
 }</code></pre>
 </div>
 </div>
@@ -615,7 +643,7 @@ may include the following snippet in <code>build.gradle</code></p>
 <div class="title">Compile Only</div>
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">dependencies {
-    compileOnly 'org.codehaus.griffon.plugins:griffon-hibernate5-groovy-compile:1.2.0'
+    compileOnly 'org.codehaus.griffon.plugins:griffon-hibernate5-groovy-compile:2.0.0-SNAPSHOT'
 }</code></pre>
 </div>
 </div>
@@ -634,7 +662,7 @@ snippet before the <code>&lt;build&gt;</code> element</p>
         <span class="tag">&lt;dependency&gt;</span>
             <span class="tag">&lt;groupId&gt;</span>org.codehaus.griffon.plugins<span class="tag">&lt;/groupId&gt;</span>
             <span class="tag">&lt;artifactId&gt;</span>griffon-hibernate5-plugin<span class="tag">&lt;/artifactId&gt;</span>
-            <span class="tag">&lt;version&gt;</span>1.2.0<span class="tag">&lt;/version&gt;</span>
+            <span class="tag">&lt;version&gt;</span>2.0.0-SNAPSHOT<span class="tag">&lt;/version&gt;</span>
             <span class="tag">&lt;type&gt;</span>pom<span class="tag">&lt;/type&gt;</span>
             <span class="tag">&lt;scope&gt;</span>import<span class="tag">&lt;/scope&gt;</span>
         <span class="tag">&lt;/dependency&gt;</span>
@@ -745,8 +773,8 @@ bind(GriffonAddon.class)
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.0<br>
-Last updated 2015-10-20 09:27:23 UTC
+Version 2.0.0-SNAPSHOT<br>
+Last updated 2017-09-05 12:30:04 +00:00
 </div>
 </div>
 </body>
