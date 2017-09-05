@@ -14,10 +14,10 @@ dependencies {
     compile "org.hibernate:hibernate-core:$hibernateVersion",
             "org.hibernate:hibernate-entitymanager:$hibernateVersion"
 
-    compileOnly 'org.codehaus.griffon.plugins:griffon-datasource-core:2.0.0'
+    compileOnly 'org.codehaus.griffon.plugins:griffon-datasource-core:2.1.0'
 
     testCompileOnly "org.codehaus.griffon:griffon-groovy-compile:${griffon.version}"
-    testCompile 'org.codehaus.griffon.plugins:griffon-datasource-core:2.0.0'
+    testCompile 'org.codehaus.griffon.plugins:griffon-datasource-core:2.1.0'
     testRuntime("com.h2database:h2:$h2Version") { transitive = false }
     testRuntime "org.slf4j:slf4j-simple:$slf4jVersion"
     testCompile "org.codehaus.groovy:groovy-all:$groovyVersion"

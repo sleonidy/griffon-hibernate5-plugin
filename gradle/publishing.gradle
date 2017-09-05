@@ -8,11 +8,24 @@ def pomConfig = {
     description project.projectDescription
     url project.projectWebsiteUrl
     inceptionYear project.projectInceptionYear
+    scm {
+        url project.projectVcsUrl
+    }
     licenses {
         license([:]) {
             name 'The Apache Software License, Version 2.0'
             url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
             distribution 'repo'
+        }
+    }
+    developers {
+        developer {
+            id 'aalmiray'
+            name 'Andres Almiray'
+        }
+        developer {
+            id   = 'sleonidy'
+            name = 'Leonid Yanovsky'
         }
     }
 }
@@ -22,6 +35,7 @@ publishing {
         mavenCustom(MavenPublication) {
             from components.java
             artifact sourceJar
+            artifact javadocJar
 
             pom.withXml {
                 // all dependencies should use the default scope (compile) but
@@ -70,7 +84,7 @@ bintray {
     publications = ['mavenCustom']
     pkg {
         repo = 'griffon-plugins'
-        userOrg = 'griffon'
+        // userOrg = 'griffon'
         name = rootProject.name
         desc = rootProject.projectDescription
         licenses = ['Apache-2.0']
