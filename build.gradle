@@ -149,7 +149,11 @@ githubPages {
         password = githubPassword
     }
 }
-
+task getVersion { 
+    doLast { 
+        println version 
+    } 
+}
 publishGhPages.dependsOn(project(":${pluginBaseName}-guide").guide)
 
 coveralls {
