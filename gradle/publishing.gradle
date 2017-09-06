@@ -19,14 +19,16 @@ def pomConfig = {
         }
     }
     developers {
+        [
         developer {
             id 'aalmiray'
             name 'Andres Almiray'
-        }
+        },
         developer {
-            id   = 'sleonidy'
-            name = 'Leonid Yanovsky'
+            id  'sleonidy'
+            name 'Leonid Yanovsky'
         }
+        ]
     }
 }
 
